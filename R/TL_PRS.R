@@ -1,8 +1,8 @@
 ##cor=bim_sum_stats[which(LDblocks2[[1]]==i),]; num=which(i==unique(LDblocks2[[1]]));nsnp=nrow(bim_sum_stats)
-block_calculation2<-function(cor,num,train_file,nsnp,temp.file){
+block_calculation2<-function(cor,num,train_file,nsnp,temp.file, plink){
   temp_file=paste0(temp.file,"_block_",num)
   write.table(cor$V2,file=temp_file,col.names=F,row.names=F,quote=F)
-  cmd = paste0("plink-1.9 --bfile ",train_file," --extract ",temp_file,   " --recodeA  --out ", temp_file,"_Geno.txt")
+  cmd = paste0(plink, " --bfile ",train_file," --extract ",temp_file,   " --recodeA  --out ", temp_file,"_Geno.txt")
   system(cmd)
   
   Gtemp=try(as.data.frame(fread(paste0(temp_file,"_Geno.txt.raw"),header=T)),silent=T)
@@ -71,7 +71,8 @@ block_calculation2<-function(cor,num,train_file,nsnp,temp.file){
 
 ##PRStr_calculation2(sum_stats_target, train_file, sum_stats, LDblocks, cluster=cluster,temp.file=paste0(tempfile,"_step1"))
 ##temp.file=paste0(tempfile,"_step1")
-PRStr_calculation2<-function(sum_stats_target, train_file, sum_stats, LDblocks, cluster=NULL,temp.file){
+PRStr_calculation2<-function(sum_stats_target, train_file, sum_stats, LDblocks, cluster=NULL,temp.file,
+                             plink){
   possible.LDblocks <- c("EUR.hg19", "AFR.hg19", "ASN.hg19", 
                          "EUR.hg38", "AFR.hg38", "ASN.hg38") 
   if(!is.null(LDblocks)) {
@@ -126,11 +127,13 @@ PRStr_calculation2<-function(sum_stats_target, train_file, sum_stats, LDblocks, 
   
   if(is.null(cluster)) {
   	results.list <- lapply(unique(LDblocks2[[1]]), function(i) {
-    		block_calculation2(cor=bim_sum_stats[which(LDblocks2[[1]]==i),], num=which(i==unique(LDblocks2[[1]])),train_file=train_file,nsnp=nrow(bim_sum_stats),temp.file)
+    		block_calculation2(cor=bim_sum_stats[which(LDblocks2[[1]]==i),], num=which(i==unique(LDblocks2[[1]])),train_file=train_file,nsnp=nrow(bim_sum_stats),temp.file,
+    		                   plink)
   	})
   } else {
   	results.list <-  parallel::parLapplyLB(cluster,unique(LDblocks2[[1]]), function(i) {
-    		block_calculation2(cor=bim_sum_stats[which(LDblocks2[[1]]==i),], num=which(i==unique(LDblocks2[[1]])),train_file=train_file,nsnp=nrow(bim_sum_stats),temp.file)
+    		block_calculation2(cor=bim_sum_stats[which(LDblocks2[[1]]==i),], num=which(i==unique(LDblocks2[[1]])),train_file=train_file,nsnp=nrow(bim_sum_stats),temp.file,
+    		                   plink)
   	})
   }
   
@@ -148,7 +151,8 @@ PRStr_calculation2<-function(sum_stats_target, train_file, sum_stats, LDblocks, 
 ######################The function used summary statistics for training############### 
 ##ped_file=ped.file;Covar_name="";Y_name=kword;Ytype="C"; train_file=train.bfile;test_file=test.bfile;sum_stats_file=beta.file;LDblocks="EUR.hg19"
 ##ped.file,"",kword, Ytype="C",train.bfile,test.bfile,beta.file,target_sumstats_file,LDblocks="EUR.hg19",tempfile
-TL_PRS<-function(ped_file,Covar_name,Y_name, Ytype="C",train_file,test_file,sum_stats_file,target_sumstats_file, LDblocks="EUR.hg19",outfile,cluster=NULL){
+TL_PRS<-function(ped_file,Covar_name,Y_name, Ytype="C",train_file,test_file,sum_stats_file,target_sumstats_file, LDblocks="EUR.hg19",outfile,cluster=NULL,
+                 plink = "plink-1.9"){
 	tempfile=outfile
 	out1=PRStr_main_check(ped_file,Covar_name,Y_name, Ytype,train_file,test_file,sum_stats_file,LDblocks)
 	if (out1!=0){stop(out1)}
@@ -177,7 +181,8 @@ TL_PRS<-function(ped_file,Covar_name,Y_name, Ytype="C",train_file,test_file,sum_
 	sum_stats_target=sum_stats_target[,c("SNP","A1.x","Beta","cor")];colnames(sum_stats_target)[2]="A1";
 	gc()
 
-	beta_list=as.data.frame(PRStr_calculation2(sum_stats_target, train_file, sum_stats, LDblocks, cluster=cluster,temp.file=paste0(tempfile,"_step1")))
+	beta_list=as.data.frame(PRStr_calculation2(sum_stats_target, train_file, sum_stats, LDblocks, cluster=cluster,temp.file=paste0(tempfile,"_step1"),
+	                                           plink = plink))
 	beta_list=as.data.frame(beta_list[,-c(5,9)])
 	colnames(beta_list)[1:2]=c("SNP","A1")
 	write.table(beta_list,file=paste0(tempfile,"_beta.candidates.txt"),row.names=F,quote=F,col.names=T)
