@@ -247,7 +247,7 @@ Calculate_PRS<-function(test.bfile,B.beta.info,B.beta.all){
 	pgs <- lapply(BM0, function(x) lassosum:::pgs(bfile=test.bfile, weights = x, 
            extract=flag, keep=NULL, 
            cluster=NULL))
-	})
+	}) ####is this correct for my case? TZ
 
 	fam=read.table(paste0(test.bfile,".fam"))[,c(1,2)]
 	colnames(fam)[1:2]=c("FID","IID")
@@ -361,6 +361,8 @@ PRStr_tuning<-function(Beta.all, ped, Covar_name,Y_name, Ytype, test_file){
     beta.all=Beta.all[,9:ncol(Beta.all)]/Beta.all$sd
     PRS.all=Calculate_PRS(test_file,beta.info,beta.all)
     
+    ####TZ: are these PRS correct?
+    save(PRS.all, file = '/raid6/Tianyu/PRS/SimulationPipeline/PRS-all-in-PRStr_tuning.RData')
  
     out.item=data.frame("order"=NA,"R2"=NA)
     for (flag in 3:ncol(PRS.all)){
@@ -373,6 +375,10 @@ PRStr_tuning<-function(Beta.all, ped, Covar_name,Y_name, Ytype, test_file){
         out.item[flag-2,2]=as.numeric(logistic_result_generator(resulttemp,ped,Covar_name,Y_name))
       }
     }
+    
+    ###the out.item is also important
+    save(out.item, file = '/raid6/Tianyu/PRS/SimulationPipeline/out-item-in-PRStr_tuning.RData')
+    
     flag=which(out.item$R2==max(out.item$R2))[1]
     param_table=data.frame("lr"=c(0,rep(1/nrow(beta.all)*c(1,10,100,1000),each=15)),"iter"=c(0,rep(1:15,4)))   
     out.final=list()
