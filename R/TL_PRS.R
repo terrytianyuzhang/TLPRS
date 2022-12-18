@@ -144,10 +144,6 @@ PRStr_calculation2<-function(sum_stats_target, train_file, sum_stats, LDblocks, 
 
 
 
-
-
-
-
 ######################The function used summary statistics for training############### 
 ##ped_file=ped.file;Covar_name="";Y_name=kword;Ytype="C"; train_file=train.bfile;test_file=test.bfile;sum_stats_file=beta.file;LDblocks="EUR.hg19"
 ##ped.file,"",kword, Ytype="C",train.bfile,test.bfile,beta.file,target_sumstats_file,LDblocks="EUR.hg19",tempfile
@@ -180,10 +176,14 @@ TL_PRS<-function(ped_file,Covar_name,Y_name, Ytype="C",train_file,test_file,sum_
 	if (length(flag)>0){sum_stats_target$cor[flag]=-sum_stats_target$cor[flag]}
 	sum_stats_target=sum_stats_target[,c("SNP","A1.x","Beta","cor")];colnames(sum_stats_target)[2]="A1";
 	gc()
-
+	
+  ####step 1:check up until here----------- ##so far so good
 	beta_list=as.data.frame(PRStr_calculation2(sum_stats_target, train_file, sum_stats, LDblocks, cluster=cluster,temp.file=paste0(tempfile,"_step1"),
 	                                           plink = plink))
-	beta_list=as.data.frame(beta_list[,-c(5,9)])
+	write.table(beta_list,file=paste0(tempfile,"_beta.candidates.fresh.txt"),row.names=F,quote=F,col.names=T)
+	
+	beta_list=as.data.frame(beta_list[,-c(5,9)]) ###you got rid of the correct A1?!?!
+	##the fifth column is the A1 and the nineth is the order.
 	colnames(beta_list)[1:2]=c("SNP","A1")
 	write.table(beta_list,file=paste0(tempfile,"_beta.candidates.txt"),row.names=F,quote=F,col.names=T)
 

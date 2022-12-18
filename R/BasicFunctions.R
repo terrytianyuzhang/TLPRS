@@ -359,9 +359,11 @@ PRStr_tuning<-function(Beta.all, ped, Covar_name,Y_name, Ytype, test_file){
     }
     
     beta.all=Beta.all[,9:ncol(Beta.all)]/Beta.all$sd
+    #I guess this Calculate_PRS function is not working
     PRS.all=Calculate_PRS(test_file,beta.info,beta.all)
     
     ####TZ: are these PRS correct?
+    ####No, they are not predictive (including PRS.NULL)
     save(PRS.all, file = '/raid6/Tianyu/PRS/SimulationPipeline/PRS-all-in-PRStr_tuning.RData')
  
     out.item=data.frame("order"=NA,"R2"=NA)
@@ -378,9 +380,17 @@ PRStr_tuning<-function(Beta.all, ped, Covar_name,Y_name, Ytype, test_file){
     
     ###the out.item is also important
     save(out.item, file = '/raid6/Tianyu/PRS/SimulationPipeline/out-item-in-PRStr_tuning.RData')
+    # > raw = get(load('out-item-in-PRStr_tuning.RData'))
+    # > raw$
+    #   raw$order  raw$R2     
+    # > raw$R2
+    # [1] 0.0467390 0.0467397 0.0467404 0.0467411 0.0467418 0.0467425 0.0467432
+    # ......
+    # [57] 0.0525382 0.0528658 0.0531618 0.0534272 0.0536629
     
     flag=which(out.item$R2==max(out.item$R2))[1]
     param_table=data.frame("lr"=c(0,rep(1/nrow(beta.all)*c(1,10,100,1000),each=15)),"iter"=c(0,rep(1:15,4)))   
+    
     out.final=list()
     out.final$best.learning.rate=param_table$lr[flag]
     out.final$best.iteration=param_table$iter[flag]
