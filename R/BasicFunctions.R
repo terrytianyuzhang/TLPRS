@@ -231,7 +231,8 @@ Calculate_PRS<-function(test.bfile,B.beta.info,B.beta.all){
 	merged <- merge(test.bim,   B.beta.info,all=F, 
                   by.x="V2", by.y="SNP",sort=F)
 	###check the sign##
-	list1=which(merged$A2==merged$V5)
+	# list1=which(merged$A2==merged$V5)#this is not correct
+	list1=which(merged$A1!=merged$V5)
 	if (length(list1)>0){
 		B.beta.all[list1,]=-B.beta.all[list1,]
 	}

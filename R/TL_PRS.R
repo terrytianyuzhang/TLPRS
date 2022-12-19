@@ -177,13 +177,16 @@ TL_PRS<-function(ped_file,Covar_name,Y_name, Ytype="C",train_file,test_file,sum_
 	sum_stats_target=sum_stats_target[,c("SNP","A1.x","Beta","cor")];colnames(sum_stats_target)[2]="A1";
 	gc()
 	
-  ####step 1:check up until here----------- ##so far so good
 	beta_list=as.data.frame(PRStr_calculation2(sum_stats_target, train_file, sum_stats, LDblocks, cluster=cluster,temp.file=paste0(tempfile,"_step1"),
 	                                           plink = plink))
 	write.table(beta_list,file=paste0(tempfile,"_beta.candidates.fresh.txt"),row.names=F,quote=F,col.names=T)
 	
-	beta_list=as.data.frame(beta_list[,-c(5,9)]) ###you got rid of the correct A1?!?!
-	##the fifth column is the A1 and the nineth is the order.
+	# beta_list=as.data.frame(beta_list[,-c(5,9)]) ###you got rid of the correct A1?!?!
+	# ##the fifth column is the A1 and the nineth is the order.
+	
+	beta_list[,2] <- beta_list[,5] ###now the second column is the correct A1
+	beta_list <- as.data.frame(beta_list)
+	
 	colnames(beta_list)[1:2]=c("SNP","A1")
 	write.table(beta_list,file=paste0(tempfile,"_beta.candidates.txt"),row.names=F,quote=F,col.names=T)
 
