@@ -203,55 +203,55 @@ TL_PRS<-function(ped_file,Covar_name,Y_name, Ytype="C",train_file,test_file,sum_
 	return(out1)
 }
 
-test_file <- paste0(work.dir, 'YRI.TST/YRI.TST')
-ped_test_file <- paste0(work.dir, '/YRI.TST/YRI-TST-fam-forTL.txt')
-Y_name <- "PHENO1"
-stats_file <- paste0(main.dir,'firstTL_temp.beta.txt')
-beta.can.file <- paste0(main.dir,"firstTL_beta.candidates.fresh.txt")
-
-AUC.from.beta.candidates <- function(beta.can.file,
-                                     test_file, stats_file, ped_test_file,Y_name){
-  beta.all <- fread(beta.can.file) ##read in all the beta
-  
-  ##normalize and make sure the signs are correct
-  beta.all[,11:ncol(beta.all)] <- beta.all[,11:ncol(beta.all)] / beta.all$sd
-  not.same.A1 <- which(beta.all$V5 != beta.all$A1)
-  beta.all[not.same.A1,11:ncol(beta.all)] <- -beta.all[not.same.A1,11:ncol(beta.all)]
-  names(beta.all)[,1:2] <- c("SNP","A1")
-    
-  Y_test=read.table(ped_test_file,header=T, sep = ',')
-  
-  beta.all <- as.data.frame(beta.all)
-  aucs <- rep(0, length(12:ncol(beta.all)))
-  k <- 1
-    for(i in 12:ncol(beta.all)){
-    temp.beta <- beta.all[, c(1,2,i)]
-    fwrite(temp.beta, 
-                file = stats_file, sep = ' ',
-                col.names = FALSE)
-    cmd <- paste0("/usr/local/bin/plink --bfile ",test_file,
-               "  --score ",stats_file, " sum", 
-               " --out ",stats_file,".test.PRS",
-               " --allow-no-sex")
-    system(cmd)
-    temp=read.table(paste0(stats_file,".test.PRS.profile"),header=T)
-    merged=merge(temp,Y_test,by=c("FID","IID"))
-    
-    aucs[k] <- auc(merged[,Y_name],merged$SCORESUM)
-    k <- k+1
-    }
-  # > aucs
-  # [1] 0.7124512 0.7124523 0.7124569 0.7124571 0.7124580 0.7124589 0.7124601
-  # [8] 0.7124647 0.7124666 0.7124677 0.7124701 0.7124725 0.7124764 0.7124796
-  # [15] 0.7124797 0.7124677 0.7124936 0.7125233 0.7125501 0.7125733 0.7125966
-  # [22] 0.7126212 0.7126488 0.7126644 0.7126870 0.7127111 0.7127335 0.7127590
-  # [29] 0.7127785 0.7128108 0.7126876 0.7129319 0.7131436 0.7133729 0.7136186
-  # [36] 0.7138386 0.7140674 0.7142802 0.7145073 0.7147295 0.7149423 0.7151689
-  # [43] 0.7153975 0.7155980 0.7158003 0.7147240 0.7168759 0.7187756 0.7206672
-  # [50] 0.7223919 0.7239199 0.7254027 0.7266540 0.7278350 0.7288401 0.7297561
-  # [57] 0.7305475 0.7312015 0.7318841 0.7323994
-  }
-  
+# test_file <- paste0(work.dir, 'YRI.TST/YRI.TST')
+# ped_test_file <- paste0(work.dir, '/YRI.TST/YRI-TST-fam-forTL.txt')
+# Y_name <- "PHENO1"
+# stats_file <- paste0(main.dir,'firstTL_temp.beta.txt')
+# beta.can.file <- paste0(main.dir,"firstTL_beta.candidates.fresh.txt")
+# 
+# AUC.from.beta.candidates <- function(beta.can.file,
+#                                      test_file, stats_file, ped_test_file,Y_name){
+#   beta.all <- fread(beta.can.file) ##read in all the beta
+#   
+#   ##normalize and make sure the signs are correct
+#   beta.all[,11:ncol(beta.all)] <- beta.all[,11:ncol(beta.all)] / beta.all$sd
+#   not.same.A1 <- which(beta.all$V5 != beta.all$A1)
+#   beta.all[not.same.A1,11:ncol(beta.all)] <- -beta.all[not.same.A1,11:ncol(beta.all)]
+#   names(beta.all)[,1:2] <- c("SNP","A1")
+#     
+#   Y_test=read.table(ped_test_file,header=T, sep = ',')
+#   
+#   beta.all <- as.data.frame(beta.all)
+#   aucs <- rep(0, length(12:ncol(beta.all)))
+#   k <- 1
+#     for(i in 12:ncol(beta.all)){
+#     temp.beta <- beta.all[, c(1,2,i)]
+#     fwrite(temp.beta, 
+#                 file = stats_file, sep = ' ',
+#                 col.names = FALSE)
+#     cmd <- paste0("/usr/local/bin/plink --bfile ",test_file,
+#                "  --score ",stats_file, " sum", 
+#                " --out ",stats_file,".test.PRS",
+#                " --allow-no-sex")
+#     system(cmd)
+#     temp=read.table(paste0(stats_file,".test.PRS.profile"),header=T)
+#     merged=merge(temp,Y_test,by=c("FID","IID"))
+#     
+#     aucs[k] <- auc(merged[,Y_name],merged$SCORESUM)
+#     k <- k+1
+#     }
+#   # > aucs
+#   # [1] 0.7124512 0.7124523 0.7124569 0.7124571 0.7124580 0.7124589 0.7124601
+#   # [8] 0.7124647 0.7124666 0.7124677 0.7124701 0.7124725 0.7124764 0.7124796
+#   # [15] 0.7124797 0.7124677 0.7124936 0.7125233 0.7125501 0.7125733 0.7125966
+#   # [22] 0.7126212 0.7126488 0.7126644 0.7126870 0.7127111 0.7127335 0.7127590
+#   # [29] 0.7127785 0.7128108 0.7126876 0.7129319 0.7131436 0.7133729 0.7136186
+#   # [36] 0.7138386 0.7140674 0.7142802 0.7145073 0.7147295 0.7149423 0.7151689
+#   # [43] 0.7153975 0.7155980 0.7158003 0.7147240 0.7168759 0.7187756 0.7206672
+#   # [50] 0.7223919 0.7239199 0.7254027 0.7266540 0.7278350 0.7288401 0.7297561
+#   # [57] 0.7305475 0.7312015 0.7318841 0.7323994
+#   }
+#   
   
   
   
