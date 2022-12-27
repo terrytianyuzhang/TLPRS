@@ -44,7 +44,7 @@ block_calculation2<-function(cor,num,train_file,nsnp,temp.file, plink){
     u0=gy-GG2%*%betatemp
     beta.all=cbind(u0, betatemp)
     # for (factor1 in c(1,10,100,1000)){
-    for (factor1 in c(1,1e2,1e3,1e4)){
+    for (factor1 in c(1,1e3,1e4,1e5)){
       k=1
       betatemp=beta.all[,2]
       u0=beta.all[,1]
