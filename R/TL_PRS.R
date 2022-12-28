@@ -44,7 +44,7 @@ block_calculation2<-function(cor,num,train_file,nsnp,temp.file, plink){
     u0=gy-GG2%*%betatemp
     beta.all=cbind(u0, betatemp)
     # for (factor1 in c(1,10,100,1000)){
-    for (factor1 in c(1,1e3,1e4,1e5)){
+    for (factor1 in c(10,1e3,1e4)){
       k=1
       betatemp=beta.all[,2]
       u0=beta.all[,1]
@@ -182,64 +182,66 @@ TL_PRS<-function(ped_file,Covar_name,Y_name, Ytype="C",train_file,test_file,sum_
 	                                           plink = plink))
 	write.table(beta_list,file=paste0(tempfile,"_beta.candidates.fresh.txt"),row.names=F,quote=F,col.names=T)
 	
+	return(1)
 	# beta_list=as.data.frame(beta_list[,-c(5,9)]) ###you got rid of the correct A1?!?!
 	# ##the fifth column is the A1 and the nineth is the order.
 	
-	beta_list[,2] <- beta_list[,5] ###now the second column is the correct A1
-	beta_list <- as.data.frame(beta_list)
+	# beta_list[,2] <- beta_list[,5] ###now the second column is the correct A1
+	# beta_list <- as.data.frame(beta_list)
+	# 
+	# colnames(beta_list)[1:2]=c("SNP","A1")
+	# write.table(beta_list,file=paste0(tempfile,"_beta.candidates.txt"),row.names=F,quote=F,col.names=T)
+  
 	
-	colnames(beta_list)[1:2]=c("SNP","A1")
-	write.table(beta_list,file=paste0(tempfile,"_beta.candidates.txt"),row.names=F,quote=F,col.names=T)
-
-	out1=PRStr_tuning(beta_list, ped,Covar_name, Y_name, Ytype,test_file)
-
-  	if (file.exists(paste0(tempfile,"_original_sum_stats.txt"))) {file.remove(paste0(tempfile,"_original_sum_stats.txt"))}
-  	if (file.exists(paste0(tempfile,"_step0.train.PRS.nosex"))) {file.remove(paste0(tempfile,"_step0.train.PRS.nosex"))}
-  	if (file.exists(paste0(tempfile,"_step0.train.PRS.log"))) {file.remove(paste0(tempfile,"_step0.train.PRS.log"))}
-  	if (file.exists(paste0(tempfile,"_step0.train.PRS.profile"))) {file.remove(paste0(tempfile,"_step0.train.PRS.profile"))}  
-	write.table(out1$best.beta,file=paste0(tempfile,"_best.beta.txt"),row.names=F,quote=F,col.names=T)
-	write.table(out1$best.PRS,file=paste0(tempfile,"_best.PRS.txt"),row.names=F,quote=F,col.names=T)
-
-	return(out1)
+# 	out1=PRStr_tuning(beta_list, ped,Covar_name, Y_name, Ytype,test_file)
+# 
+#   	if (file.exists(paste0(tempfile,"_original_sum_stats.txt"))) {file.remove(paste0(tempfile,"_original_sum_stats.txt"))}
+#   	if (file.exists(paste0(tempfile,"_step0.train.PRS.nosex"))) {file.remove(paste0(tempfile,"_step0.train.PRS.nosex"))}
+#   	if (file.exists(paste0(tempfile,"_step0.train.PRS.log"))) {file.remove(paste0(tempfile,"_step0.train.PRS.log"))}
+#   	if (file.exists(paste0(tempfile,"_step0.train.PRS.profile"))) {file.remove(paste0(tempfile,"_step0.train.PRS.profile"))}  
+# 	write.table(out1$best.beta,file=paste0(tempfile,"_best.beta.txt"),row.names=F,quote=F,col.names=T)
+# 	write.table(out1$best.PRS,file=paste0(tempfile,"_best.PRS.txt"),row.names=F,quote=F,col.names=T)
+# 
+# 	return(out1)
 }
 
-# test_file <- paste0(work.dir, 'YRI.TST/YRI.TST')
-# ped_test_file <- paste0(work.dir, '/YRI.TST/YRI-TST-fam-forTL.txt')
-# Y_name <- "PHENO1"
-# stats_file <- paste0(main.dir,'firstTL_temp.beta.txt')
-# beta.can.file <- paste0(main.dir,"firstTL_beta.candidates.fresh.txt")
 # 
 # AUC.from.beta.candidates <- function(beta.can.file,
 #                                      test_file, stats_file, ped_test_file,Y_name){
 #   beta.all <- fread(beta.can.file) ##read in all the beta
-#   
+# 
 #   ##normalize and make sure the signs are correct
 #   beta.all[,11:ncol(beta.all)] <- beta.all[,11:ncol(beta.all)] / beta.all$sd
 #   not.same.A1 <- which(beta.all$V5 != beta.all$A1)
 #   beta.all[not.same.A1,11:ncol(beta.all)] <- -beta.all[not.same.A1,11:ncol(beta.all)]
-#   names(beta.all)[,1:2] <- c("SNP","A1")
-#     
-#   Y_test=read.table(ped_test_file,header=T, sep = ',')
-#   
+#   names(beta.all)[1:2] <- c("SNP","A1")
+# 
+#   Y_test=read.table(ped_test_file,header=T, sep = ' ')
+# 
 #   beta.all <- as.data.frame(beta.all)
 #   aucs <- rep(0, length(12:ncol(beta.all)))
 #   k <- 1
 #     for(i in 12:ncol(beta.all)){
 #     temp.beta <- beta.all[, c(1,2,i)]
-#     fwrite(temp.beta, 
+#     fwrite(temp.beta,
 #                 file = stats_file, sep = ' ',
 #                 col.names = FALSE)
 #     cmd <- paste0("/usr/local/bin/plink --bfile ",test_file,
-#                "  --score ",stats_file, " sum", 
+#                "  --score ",stats_file, " sum",
 #                " --out ",stats_file,".test.PRS",
 #                " --allow-no-sex")
 #     system(cmd)
+#     print("0")
 #     temp=read.table(paste0(stats_file,".test.PRS.profile"),header=T)
+#     print("2")
 #     merged=merge(temp,Y_test,by=c("FID","IID"))
-#     
+#     print("3")
 #     aucs[k] <- auc(merged[,Y_name],merged$SCORESUM)
 #     k <- k+1
+#     print(aucs)
 #     }
+#   
+#   return(aucs)
 #   # > aucs
 #   # [1] 0.7124512 0.7124523 0.7124569 0.7124571 0.7124580 0.7124589 0.7124601
 #   # [8] 0.7124647 0.7124666 0.7124677 0.7124701 0.7124725 0.7124764 0.7124796
@@ -251,9 +253,78 @@ TL_PRS<-function(ped_file,Covar_name,Y_name, Ytype="C",train_file,test_file,sum_
 #   # [50] 0.7223919 0.7239199 0.7254027 0.7266540 0.7278350 0.7288401 0.7297561
 #   # [57] 0.7305475 0.7312015 0.7318841 0.7323994
 #   }
+# 
+# test_file <- paste0(work.dir, 'YRI.TUNE/YRI.TUNE')
+# ped_test_file <- paste0(work.dir, '/YRI.TUNE/YRI-TUNE-fam-forTL.txt')
+# Y_name <- "Y"
+# stats_file <- paste0(main.dir,'firstTL_temp.beta.txt')
+# beta.can.file <- paste0(main.dir,"firstTL_beta.candidates.fresh.txt")
+# 
+# tune.auc <- AUC.from.beta.candidates(beta.can.file,
+#                                      test_file, stats_file, ped_test_file, Y_name)
+# 
+# AUC.best.beta <- function(beta.can.file,
+#                           test_file, stats_file, ped_test_file,Y_name,
+#                           best.beta.index){
+#   beta.all <- fread(beta.can.file) ##read in all the beta
 #   
-  
-  
-  
+#   ##normalize and make sure the signs are correct
+#   beta.all[,11:ncol(beta.all)] <- beta.all[,11:ncol(beta.all)] / beta.all$sd
+#   not.same.A1 <- which(beta.all$V5 != beta.all$A1)
+#   beta.all[not.same.A1,11:ncol(beta.all)] <- -beta.all[not.same.A1,11:ncol(beta.all)]
+#   names(beta.all)[1:2] <- c("SNP","A1")
+#   
+#   Y_test=read.table(ped_test_file,header=T, sep = ' ')
+#   
+#   beta.all <- as.data.frame(beta.all)
+#   best.auc <- -1
+#   
+#   k <- 1
+#   for(i in 12:ncol(beta.all)){
+#     if(k == best.beta.index){
+#     temp.beta <- beta.all[, c(1,2,i)]
+#     fwrite(temp.beta,
+#            file = stats_file, sep = ' ',
+#            col.names = FALSE)
+#     cmd <- paste0("/usr/local/bin/plink --bfile ",test_file,
+#                   "  --score ",stats_file, " sum",
+#                   " --out ",stats_file,".test.PRS",
+#                   " --allow-no-sex")
+#     system(cmd)
+#     print("0")
+#     temp=read.table(paste0(stats_file,".test.PRS.profile"),header=T)
+#     print("2")
+#     merged=merge(temp,Y_test,by=c("FID","IID"))
+#     print("3")
+#     best.auc <- auc(merged[,Y_name],merged$SCORESUM)
+#     k <- k+1
+#     print(best.auc)
+#     }##if best beta
+#   }
+#   
+#   return(aucs)
+# }
+# 
+# test_file <- paste0(work.dir, 'YRI.TST/YRI.TST')
+# ped_test_file <- paste0(work.dir, '/YRI.TST/YRI-TST-fam-forTL.txt')
+# Y_name <- "Y"
+# stats_file <- paste0(main.dir,'firstTL_temp.beta.txt')
+# beta.can.file <- paste0(main.dir,"firstTL_beta.candidates.fresh.txt")
+# 
+# test.auc <- AUC.best.beta(beta.can.file,
+#                           test_file, stats_file, ped_test_file, Y_name,
+#                           which.max(tune.auc))
+# > test.aucs
+# [1] 0.7124512 0.7124523 0.7124569 0.7124571 0.7124580 0.7124589 0.7124601
+# [8] 0.7124647 0.7124666 0.7124677 0.7124701 0.7124725 0.7124764 0.7124796
+# [15] 0.7124797 0.7147240 0.7168759 0.7187756 0.7206672 0.7223919 0.7239199
+# [22] 0.7254027 0.7266540 0.7278350 0.7288401 0.7297561 0.7305475 0.7312015
+# [29] 0.7318841 0.7323994 0.7289631 0.7335943 0.7304489 0.7235622 0.7153189
+# [36] 0.7070783 0.6993625 0.6923570 0.6860880 0.6805120 0.6755146 0.6710677
+# [43] 0.6670146 0.6633822 0.6601632 0.6785349 0.6471623 0.6324021 0.6242296
+# [50] 0.6185533 0.6144268 0.6112639 0.6086980 0.6064754 0.6046272 0.6030144
+# [57] 0.6015476 0.6002817 0.5991710 0.5981460
+
+
   
   
