@@ -288,7 +288,9 @@ PRStr_main_check<-function(ped_file,Covar_name,Y_name, Ytype,train_file,test_fil
 			}
 		} 
 	}
-	if (!LDblocks %in% c("EUR.hg19", "AFR.hg19", "ASN.hg19")) {out1="The LDblocks name is wrong!"}
+	if (!LDblocks %in% c("EUR.hg19", "EUR.hg38",
+	                     "AFR.hg19", "AFR.hg38",
+	                     "ASN.hg19", "ASN.hg38")) {out1="The LDblocks name is wrong!"}
 	return(out1)
 }
 
