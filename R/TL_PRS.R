@@ -2,7 +2,7 @@
 block_calculation2<-function(cor,num,train_file,nsnp,temp.file, plink){
   temp_file=paste0(temp.file,"_block_",num)
   write.table(cor$V2,file=temp_file,col.names=F,row.names=F,quote=F)
-  cmd = paste0(plink, " --bfile ",train_file," --extract ",temp_file,   " --recodeA  --out ", temp_file,"_Geno.txt")
+  cmd = paste0(plink, " --bfile ",train_file," --extract ",temp_file," –-keep-allele-order"," --recodeA  --out ", temp_file,"_Geno.txt")
   system(cmd)
   
   Gtemp=try(as.data.frame(fread(paste0(temp_file,"_Geno.txt.raw"),header=T)),silent=T)
